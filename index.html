@@ -14,7 +14,6 @@
             line-height: 0.84em;
         }
 
-
         td {
             text-align: center;
             font-family: monospace;
@@ -259,12 +258,116 @@
             setCallbacks("l");
             setCallbacks("r");
 
-            function makeBitSet(ls) {
+            function MakeBitSet(ls) {
                 let ret = 0n;
                 for (let i of ls) {
                     ret |= (1n << BigInt(i));
                 }
                 return ret;
+            }
+
+
+            // Each list corresponds to the set of bonds which would block that face if they
+            // are present. The helper converts them to a bitset which allows us to check if
+            // a face is blocked with a single bitwise operation.
+            const blockers = {
+              b : MakeBitSet([ 7n,  8n,  9n, 28n, 29n, 30n, 49n, 50n, 51n]),
+              l : MakeBitSet([ 1n,  6n, 11n, 22n, 27n, 32n, 43n, 48n, 53n]),
+              u : MakeBitSet([33n, 34n, 35n, 36n, 37n, 38n, 39n, 40n, 41n]),
+              r : MakeBitSet([ 0n,  5n, 10n, 21n, 26n, 31n, 42n, 47n, 52n]),
+              d : MakeBitSet([12n, 13n, 14n, 15n, 16n, 17n, 18n, 19n, 20n]),
+              f : MakeBitSet([ 2n,  3n,  4n, 23n, 24n, 25n, 44n, 45n, 46n]),
+            }
+
+
+            // Cube is a BigInt bitset. Turn is one of {b,l,u,r,d,f}
+            // Returns whether that face is blocked.
+            function CanDoTurn(cube, turn) {
+              return !(cube & blockers[turn[0]])
+            }
+
+            // CanDoTurn must be called before calling this method.
+            // Cube is a BigInt bitset. Turn is one of {b,l,u,r,d,f}
+            // Returns a bitset representing the cube after that turn has been performed
+            // Turns can be thought of as bit permutation that move bonds to new locations
+            // which means I can use my favorite tool (
+            function DoTurn(cube, turn) {
+              if (turn.length > 1) {
+                if (turn[1] == '"') {
+                  return DoTurn(DoTurn(DoTurn(cube, turn[0]), turn[0]), turn[0])
+                } else if (turn[1] == '2') {
+                  return DoTurn(DoTurn(cube, turn[0]), turn[0])
+                }
+              }
+              switch (turn) {
+                case 'b':
+                  return ApplyPermutations(cube, [
+                    [10n, 20n, 53n, 39n],
+                    [11n, 41n, 52n, 18n],
+                    [19n, 32n, 40n, 31n]
+                  ]);
+                case 'l':
+                  return ApplyPermutations(cube, [
+                    [ 4n, 35n, 51n, 20n],
+                    [ 9n, 14n, 46n, 41n],
+                    [17n, 25n, 38n, 30n]
+                  ]);
+                case 'u':
+                  return ApplyPermutations(cube, [
+                    [42n, 49n, 53n, 46n],
+                    [43n, 44n, 52n, 51n],
+                    [45n, 47n, 50n, 48n]
+                  ]);
+                case 'r':
+                  return ApplyPermutations(cube, [
+                    [ 2n, 18n, 49n, 33n],
+                    [ 7n, 39n, 44n, 12n],
+                    [15n, 28n, 36n, 23n]
+                  ]);
+                case 'd':
+                  return ApplyPermutations(cube, [
+                    [ 0n,  4n, 11n,  7n],
+                    [ 1n,  9n, 10n,  2n],
+                    [ 3n,  6n,  8n,  5n]
+                  ]);
+                case 'f':
+                  return ApplyPermutations(cube, [
+                    [ 0n, 33n, 43n, 14n],
+                    [ 1n, 12n, 42n, 35n],
+                    [13n, 21n, 34n, 22n]
+                  ]);
+              }
+              console.log('unexpected turn id, ', turn); 
+              return cube;
+            }
+
+            // jmerm shit here
+            function PathFromTo(cube1, cube2) {
+              let i = 0;
+              let nodes = [{size: 11, id: cube1, path: ''}];
+              let node_set = new Set(); // all nodes so far and their ints
+
+              node_set.add(cube1);
+              while (i < nodes.length) {
+                let to_explore = nodes[i].id;
+                let path = nodes[i].path
+                for (let c of ['b', 'l', 'u', 'r', 'd', 'f', 'b"', 'l"', 'u"', 'r"', 'd"', 'f"', 'b2', 'l2', 'u2', 'r2', 'd2', 'f2']) {
+                  if (CanDoTurn(to_explore, c)) {
+                    let turned = DoTurn(to_explore, c);
+
+                    if (turned == cube2) {
+                      return path + " " + c;
+                    }
+                    if (!node_set.has(turned)) {
+                      nodes.push({size: 11, id: turned, path: path + " " + c});
+                      node_set.add(turned);
+                    }
+                  }
+                }
+                i++;
+              }
+
+              return "not found";
             }
 
         }
@@ -274,7 +377,6 @@
 </head>
 
 <body>
-
     <div class="container">
         <div class="row text-center py-5">
             <div class="col-12 text-center" id="left">
@@ -303,9 +405,7 @@
         </div>
     </div>
 
-
     <br />
-
 
 </body>
 
