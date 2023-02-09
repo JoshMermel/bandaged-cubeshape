@@ -159,50 +159,65 @@
             constructCelltable("celltable");
 
             function printBeenClicked() {
-                document.getElementById("beenClicked").innerText = JSON.stringify(beenClicked);
+                txt = makeBitSet(Object.keys(beenClicked));
+                document.getElementById("beenClicked").innerText = txt.toString(16);
             }
 
             beenClicked = {}
-            for (var i = 0; i <= 53; i++) {
-                for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
-                    var id = "e" + String(i).padStart(2, '0') + color;
-                    var edgeElement = document.getElementById(id);
-                    if (edgeElement == null) {
-                        continue;
-                    }
-                    edgeElement.onclick = function (event) {
-                        var elementId = event.target.id;
-                        var numberInfix = elementId.slice(1).slice(0, 2);
-                        var elements = document.querySelectorAll('[id^="e' + numberInfix + '"]');
-                        for (const el of elements) {
-                            el.style.color = window.getComputedStyle(el).backgroundColor;
+
+            function setCallbacks() {
+                for (var i = 0; i <= 53; i++) {
+                    for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
+                        var id = "e" + String(i).padStart(2, '0') + color;
+                        var edgeElement = document.getElementById(id);
+                        if (edgeElement == null) {
+                            continue;
                         }
-                        beenClicked[numberInfix] = true;
+                        edgeElement.onclick = function (event) {
+                            var elementId = event.target.id;
+                            var numberInfix = elementId.slice(1).slice(0, 2);
+                            var elements = document.querySelectorAll('[id^="e' + numberInfix + '"]');
+                            for (const el of elements) {
+                                el.style.color = window.getComputedStyle(el).backgroundColor;
+                            }
+                            beenClicked[numberInfix] = true;
 
-                        printBeenClicked();
+                            printBeenClicked();
 
-                    };
+                        };
+                    }
+                }
+
+                for (const v of [29, 27, 37, 26, 16, 24]) {
+                    for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
+                        var id = "c" + String(v).padStart(2, '0') + color;
+                        var cellElement = document.getElementById(id);
+                        if (cellElement == null) {
+                            continue;
+                        }
+                        cellElement.onclick = function (event) {
+                            var element = event.target;
+                            var elementId = element.id;
+                            var numberInfix = elementId.slice(1).slice(0, 2);
+                            beenClicked[numberInfix] = true;
+                            element.innerText = "x";
+
+                            printBeenClicked();
+                        }
+                    }
                 }
             }
 
-            for (const v of [29, 27, 37, 26, 16, 24]) {
-                for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
-                    var id = "c" + String(v).padStart(2, '0') + color;
-                    var cellElement = document.getElementById(id);
-                    if (cellElement == null) {
-                        continue;
-                    }
-                    cellElement.onclick = function (event) {
-                        var element = event.target;
-                        var elementId = element.id;
-                        var numberInfix = elementId.slice(1).slice(0, 2);
-                        beenClicked[numberInfix] = true;
-                        element.innerText = "x";
+            setCallbacks();
 
-                        printBeenClicked();
-                    }
+            function makeBitSet(ls) {
+                let ret = 0n;
+                for (let i of ls) {
+                    ret |= (1n << BigInt(i));
                 }
+                return ret;
             }
+
         }
 
     </script>
