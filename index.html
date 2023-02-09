@@ -44,8 +44,8 @@
 
         window.onload = function () {
 
-            function constructCelltable(id) {
-                var celltable = document.getElementById(id);
+            function constructCelltable(prefix, id) {
+                var celltable = document.getElementById(id)
 
                 const CellType = {
                     Number: 0,
@@ -54,10 +54,11 @@
                     Empty: 3,
                 };
 
-                function makeCell(cellType, idNumber, initColor) {
+                function makeCell(prefix, cellType, idNumber, initColor) {
                     let cell = document.createElement('td');
                     cell.classList.add(initColor);
                     var id = "";
+                    id += prefix;
                     if (cellType == CellType.Number) {
                         cell.innerText = idNumber;
                         cell.classList.add("cell");
@@ -79,110 +80,116 @@
                     return cell;
                 }
 
-                function makeFiveEmpties() {
-                    return [makeCell(CellType.Empty, 0, "white"),
-                        , makeCell(CellType.Empty, 0, "white"),
-                        , makeCell(CellType.Empty, 0, "white"),
-                        , makeCell(CellType.Empty, 0, "white"),
-                        , makeCell(CellType.Empty, 0, "white")];
+                function makeFiveEmpties(prefix) {
+                    return [makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white")];
                 }
 
-                function makeFiveCells(ls, color) {
-                    return [makeCell(CellType.Number, ls.shift(), color),
-                        , makeCell(CellType.VerticalEdge, ls.shift(), color),
-                        , makeCell(CellType.Number, ls.shift(), color),
-                        , makeCell(CellType.VerticalEdge, ls.shift(), color),
-                        , makeCell(CellType.Number, ls.shift(), color)];
+                function makeFiveCells(prefix, ls, color) {
+                    return [makeCell(prefix, CellType.Number, ls.shift(), color),
+                        , makeCell(prefix, CellType.VerticalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Number, ls.shift(), color),
+                        , makeCell(prefix, CellType.VerticalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Number, ls.shift(), color)];
                 }
 
-                function makeFiveEdges(ls, color) {
-                    return [makeCell(CellType.HorizontalEdge, ls.shift(), color),
-                        , makeCell(CellType.Empty, 0, color),
-                        , makeCell(CellType.HorizontalEdge, ls.shift(), color),
-                        , makeCell(CellType.Empty, 0, color),
-                        , makeCell(CellType.HorizontalEdge, ls.shift(), color)];
+                function makeFiveEdges(prefix, ls, color) {
+                    return [makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Empty, 0, color),
+                        , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Empty, 0, color),
+                        , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color)];
                 }
 
-                function makeRowEmptyCells(ls, color) {
+                function makeRowEmptyCells(prefix, ls, color) {
                     let row = document.createElement('tr');
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
-                    makeFiveCells(ls, color).forEach(el => row.appendChild(el));
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, ls, color).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
                     return row;
                 }
 
-                function makeRowEmptyEdges(ls, color) {
+                function makeRowEmptyEdges(prefix, ls, color) {
                     let row = document.createElement('tr');
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
-                    makeFiveEdges(ls, color).forEach(el => row.appendChild(el));
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
-                    makeFiveEmpties().forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, ls, color).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
                     return row;
                 }
 
-                function makeRowFullCells(lsls, colorls) {
+                function makeRowFullCells(prefix, lsls, colorls) {
                     let row = document.createElement('tr');
-                    makeFiveCells(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveCells(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveCells(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveCells(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
                     return row;
                 }
 
-                function makeRowFullEdges(lsls, colorls) {
+                function makeRowFullEdges(prefix, lsls, colorls) {
                     let row = document.createElement('tr');
-                    makeFiveEdges(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveEdges(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveEdges(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
-                    makeFiveEdges(lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
                     return row;
                 }
 
-                celltable.appendChild(makeRowEmptyCells([9, 11, 8, 10, 7], "blue"))
-                celltable.appendChild(makeRowEmptyEdges([30, 19, 18], "blue"));
-                celltable.appendChild(makeRowEmptyCells([30, 32, 29, 31, 28], "blue"))
-                celltable.appendChild(makeRowEmptyEdges([41, 40, 39], "blue"));
-                celltable.appendChild(makeRowEmptyCells([51, 53, 50, 52, 49], "blue"))
-                celltable.appendChild(makeRowFullCells([[11, 20, 32, 41, 53], [41, 53, 40, 52, 39], [52, 39, 31, 18, 10], [18, 10, 19, 11, 20]], ["orange", "grey", "red", "yellow"]));
-                celltable.appendChild(makeRowFullEdges([[9, 30, 51], [51, 50, 49], [49, 28, 7], [7, 8, 9]], ["orange", "grey", "red", "yellow"]));
-                celltable.appendChild(makeRowFullCells([[6, 17, 27, 38, 48], [38, 48, 37, 47, 36], [47, 36, 26, 15, 5], [15, 5, 16, 6, 17]], ["orange", "grey", "red", "yellow"]));
-                celltable.appendChild(makeRowFullEdges([[4, 25, 46], [46, 45, 44], [44, 23, 2], [2, 3, 4]], ["orange", "grey", "red", "yellow"]));
-                celltable.appendChild(makeRowFullCells([[1, 14, 22, 35, 43], [35, 43, 34, 42, 33], [42, 33, 21, 12, 0], [12, 0, 13, 1, 14]], ["orange", "grey", "red", "yellow"]));
-                celltable.appendChild(makeRowEmptyCells([46, 43, 45, 42, 44], "green"))
-                celltable.appendChild(makeRowEmptyEdges([35, 34, 33], "green"));
-                celltable.appendChild(makeRowEmptyCells([25, 22, 24, 21, 23], "green"))
-                celltable.appendChild(makeRowEmptyEdges([14, 13, 12], "green"));
-                celltable.appendChild(makeRowEmptyCells([4, 1, 3, 0, 2], "green"))
+                celltable.appendChild(makeRowEmptyCells(prefix, [9, 11, 8, 10, 7], "blue"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [30, 19, 18], "blue"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [30, 32, 29, 31, 28], "blue"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [41, 40, 39], "blue"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [51, 53, 50, 52, 49], "blue"))
+                celltable.appendChild(makeRowFullCells(prefix, [[11, 20, 32, 41, 53], [41, 53, 40, 52, 39], [52, 39, 31, 18, 10], [18, 10, 19, 11, 20]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullEdges(prefix, [[9, 30, 51], [51, 50, 49], [49, 28, 7], [7, 8, 9]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullCells(prefix, [[6, 17, 27, 38, 48], [38, 48, 37, 47, 36], [47, 36, 26, 15, 5], [15, 5, 16, 6, 17]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullEdges(prefix, [[4, 25, 46], [46, 45, 44], [44, 23, 2], [2, 3, 4]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullCells(prefix, [[1, 14, 22, 35, 43], [35, 43, 34, 42, 33], [42, 33, 21, 12, 0], [12, 0, 13, 1, 14]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowEmptyCells(prefix, [46, 43, 45, 42, 44], "green"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [35, 34, 33], "green"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [25, 22, 24, 21, 23], "green"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [14, 13, 12], "green"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [4, 1, 3, 0, 2], "green"))
             }
 
-            constructCelltable("celltable");
+            constructCelltable("l", "lcelltable");
+            constructCelltable("r", "rcelltable");
 
-            function printBeenClicked() {
-                txt = makeBitSet(Object.keys(beenClicked));
-                document.getElementById("beenClicked").innerText = txt.toString(16);
+            function dictFromPrefix(prefix) {
+                return (prefix == "l") ? leftbeenClicked : rightbeenClicked;
             }
 
-            beenClicked = {}
+            function printBeenClicked(prefix) {
+                txt = makeBitSet(Object.keys(dictFromPrefix(prefix)));
+                document.getElementById(prefix + "beenClicked").innerText = txt.toString(16);
+            }
 
-            function setCallbacks() {
+            leftbeenClicked = {}
+            rightbeenClicked = {}
+
+            function setCallbacks(prefix) {
                 for (var i = 0; i <= 53; i++) {
                     for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
-                        var id = "e" + String(i).padStart(2, '0') + color;
+                        var id = prefix + "e" + String(i).padStart(2, '0') + color;
                         var edgeElement = document.getElementById(id);
                         if (edgeElement == null) {
                             continue;
                         }
                         edgeElement.onclick = function (event) {
                             var elementId = event.target.id;
-                            var numberInfix = elementId.slice(1).slice(0, 2);
-                            var elements = document.querySelectorAll('[id^="e' + numberInfix + '"]');
+                            var numberInfix = elementId.slice(2).slice(0, 2);
+                            var elements = document.querySelectorAll('[id^="' + prefix + 'e' + numberInfix + '"]');
                             for (const el of elements) {
                                 el.style.color = window.getComputedStyle(el).backgroundColor;
                             }
-                            beenClicked[numberInfix] = true;
+                            dictFromPrefix(prefix)[numberInfix] = true;
 
-                            printBeenClicked();
+                            printBeenClicked(prefix);
 
                         };
                     }
@@ -190,7 +197,7 @@
 
                 for (const v of [29, 27, 37, 26, 16, 24]) {
                     for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
-                        var id = "c" + String(v).padStart(2, '0') + color;
+                        var id = prefix + "c" + String(v).padStart(2, '0') + color;
                         var cellElement = document.getElementById(id);
                         if (cellElement == null) {
                             continue;
@@ -198,17 +205,18 @@
                         cellElement.onclick = function (event) {
                             var element = event.target;
                             var elementId = element.id;
-                            var numberInfix = elementId.slice(1).slice(0, 2);
-                            beenClicked[numberInfix] = true;
+                            var numberInfix = elementId.slice(2).slice(0, 2);
+                            dictFromPrefix(prefix)[numberInfix] = true;
                             element.innerText = "x";
 
-                            printBeenClicked();
+                            printBeenClicked(prefix);
                         }
                     }
                 }
             }
 
-            setCallbacks();
+            setCallbacks("l");
+            setCallbacks("r");
 
             function makeBitSet(ls) {
                 let ret = 0n;
@@ -229,12 +237,23 @@
     <h1>This is a Heading</h1>
     <p>This is a paragraph.</p>
 
-    <table id="celltable">
-    </table>
+    <div class="row">
+        <div class="col-12 col-lg-6" id="left">
+            <table id="lcelltable">
+            </table>
+            <span id="lbeenClicked"></span>
+        </div>
+        <div class="col-12 col-lg-6" id="right">
+            <table id="rcelltable">
+            </table>
+            <span id="rbeenClicked"></span>
+        </div>
+
+    </div>
+
 
     <br />
 
-    <span id="beenClicked"></span>
 
 </body>
 
