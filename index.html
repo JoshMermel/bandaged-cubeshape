@@ -60,7 +60,7 @@
                     var id = "";
                     id += prefix;
                     if (cellType == CellType.Number) {
-                        cell.innerText = idNumber;
+                        cell.innerText = "";
                         cell.classList.add("cell");
                         id += "c";
                     } else if (cellType == CellType.HorizontalEdge) {
@@ -165,8 +165,20 @@
             }
 
             function printBeenClicked(prefix) {
-                txt = makeBitSet(Object.keys(dictFromPrefix(prefix)));
-                document.getElementById(prefix + "beenClicked").innerText = txt.toString(16);
+
+                var dict = dictFromPrefix(prefix);
+                console.log(dict);
+
+                let ret = 0n;
+                for (const k of Object.keys(dict)) {
+                    let val = dict[k];
+                    if (val == false) {
+                        continue;
+                    }
+                    ret |= (1n << BigInt(k));
+                }
+
+                document.getElementById(prefix + "beenClicked").innerText = ret.toString(16);
             }
 
             leftbeenClicked = {}
@@ -180,17 +192,25 @@
                         if (edgeElement == null) {
                             continue;
                         }
+                        var dict = dictFromPrefix(prefix);
+                        dict[i] = false;
                         edgeElement.onclick = function (event) {
                             var elementId = event.target.id;
                             var numberInfix = elementId.slice(2).slice(0, 2);
+                            var number = Number(numberInfix);
                             var elements = document.querySelectorAll('[id^="' + prefix + 'e' + numberInfix + '"]');
+                            console.log(number);
+                            var currTruth = dict[number];
                             for (const el of elements) {
-                                el.style.color = window.getComputedStyle(el).backgroundColor;
+                                if (!currTruth) {
+                                    el.style.color = window.getComputedStyle(el).backgroundColor;
+                                } else {
+                                    el.style.color = 'black';
+                                }
                             }
-                            dictFromPrefix(prefix)[numberInfix] = true;
+                            dict[number] = !currTruth;
 
                             printBeenClicked(prefix);
-
                         };
                     }
                 }
@@ -206,8 +226,16 @@
                             var element = event.target;
                             var elementId = element.id;
                             var numberInfix = elementId.slice(2).slice(0, 2);
-                            dictFromPrefix(prefix)[numberInfix] = true;
-                            element.innerText = "x";
+                            var number = 0 + numberInfix;
+                            var dict = dictFromPrefix(prefix);
+                            var currTruth = dict[number];
+                            if (!currTruth) {
+                                element.innerText = "x";
+                            } else {
+                                element.innerText = "";
+                            }
+                            dictFromPrefix(prefix)[number] = !currTruth;
+
 
                             printBeenClicked(prefix);
                         }
@@ -234,21 +262,17 @@
 
 <body>
 
-    <h1>This is a Heading</h1>
-    <p>This is a paragraph.</p>
-
-    <div class="row">
-        <div class="col-12 col-lg-6" id="left">
-            <table id="lcelltable">
-            </table>
-            <span id="lbeenClicked"></span>
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12 col-lg-6 text-center" id="left">
+                <table id="lcelltable"></table>
+                <span id="lbeenClicked"></span>
+            </div>
+            <div class="col-12 col-lg-6 text-center" id="right">
+                <table id="rcelltable"></table>
+                <span id="rbeenClicked"></span>
+            </div>
         </div>
-        <div class="col-12 col-lg-6" id="right">
-            <table id="rcelltable">
-            </table>
-            <span id="rbeenClicked"></span>
-        </div>
-
     </div>
 
 
