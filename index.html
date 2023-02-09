@@ -9,10 +9,19 @@
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
         crossorigin="anonymous"></script>
     <style>
+        table {
+            border-spacing: 0;
+            line-height: 0.84em;
+        }
+
+
         td {
             text-align: center;
             font-family: monospace;
-            min-width: 10px;
+            font-size: 1em;
+            overflow-y: hidden;
+            padding: 0;
+            margin: 0;
         }
 
         .blue {
@@ -52,6 +61,7 @@
                     HorizontalEdge: 1,
                     VerticalEdge: 2,
                     Empty: 3,
+                    Plus: 4,
                 };
 
                 function makeCell(prefix, cellType, idNumber, initColor) {
@@ -64,13 +74,16 @@
                         cell.classList.add("cell");
                         id += "c";
                     } else if (cellType == CellType.HorizontalEdge) {
-                        cell.innerText = "---";
+                        cell.innerText = "──";
                         cell.classList.add("edge");
                         id += "e";
                     } else if (cellType == CellType.VerticalEdge) {
-                        cell.innerText = "|";
+                        cell.innerText = "│";
                         cell.classList.add("edge");
                         id += "e";
+                    } else if (cellType == CellType.Plus) {
+                        // cell.innerText = "┼";
+                        cell.classList.add("plus");
                     }
 
                     id += String(idNumber).padStart(2, "0");
@@ -98,9 +111,9 @@
 
                 function makeFiveEdges(prefix, ls, color) {
                     return [makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
-                        , makeCell(prefix, CellType.Empty, 0, color),
+                        , makeCell(prefix, CellType.Plus, 0, color),
                         , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
-                        , makeCell(prefix, CellType.Empty, 0, color),
+                        , makeCell(prefix, CellType.Plus, 0, color),
                         , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color)];
                 }
 
@@ -141,7 +154,7 @@
                 }
 
                 celltable.appendChild(makeRowEmptyCells(prefix, [9, 11, 8, 10, 7], "blue"))
-                celltable.appendChild(makeRowEmptyEdges(prefix, [30, 19, 18], "blue"));
+                celltable.appendChild(makeRowEmptyEdges(prefix, [20, 19, 18], "blue"));
                 celltable.appendChild(makeRowEmptyCells(prefix, [30, 32, 29, 31, 28], "blue"))
                 celltable.appendChild(makeRowEmptyEdges(prefix, [41, 40, 39], "blue"));
                 celltable.appendChild(makeRowEmptyCells(prefix, [51, 53, 50, 52, 49], "blue"))
@@ -178,7 +191,7 @@
                     ret |= (1n << BigInt(k));
                 }
 
-                document.getElementById(prefix + "beenClicked").innerText = ret.toString(16);
+                document.getElementById(prefix + "beenClicked").innerText = "0x" + ret.toString(16);
             }
 
             leftbeenClicked = {}
@@ -263,14 +276,29 @@
 <body>
 
     <div class="container">
-        <div class="row text-center">
-            <div class="col-12 col-lg-6 text-center" id="left">
-                <table id="lcelltable"></table>
-                <span id="lbeenClicked"></span>
+        <div class="row text-center py-5">
+            <div class="col-12 text-center" id="left">
+                <h1> Bandaged Cube GUI </h1>
             </div>
-            <div class="col-12 col-lg-6 text-center" id="right">
-                <table id="rcelltable"></table>
-                <span id="rbeenClicked"></span>
+        </div>
+        <div class="row ">
+            <div class="col-12 col-lg-6 " id="left">
+                <div class="card">
+                    <div class="card-body">
+                        <table id="lcelltable"></table>
+                        <hr />
+                        <h2 id="lbeenClicked">0x0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 " id="right">
+                <div class="card">
+                    <div class="card-body">
+                        <table id="rcelltable"></table>
+                        <hr />
+                        <h2 id="rbeenClicked">0x0</h2>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
