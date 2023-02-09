@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bandaged Cube GUI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+    <style>
+        table {
+            border-spacing: 0;
+            line-height: 0.84em;
+        }
+
+
+        td {
+            text-align: center;
+            font-family: monospace;
+            font-size: 1em;
+            overflow-y: hidden;
+            padding: 0;
+            margin: 0;
+        }
+
+        .blue {
+            background-color: rgb(74, 74, 247);
+        }
+
+        .grey {
+            background-color: rgb(227, 222, 222);
+        }
+
+        .orange {
+            background-color: orange;
+        }
+
+        .red {
+            background-color: red;
+        }
+
+        .green {
+            background-color: green;
+        }
+
+        .yellow {
+            background-color: yellow;
+        }
+    </style>
+
+    <script>
+
+        window.onload = function () {
+
+            function constructCelltable(prefix, id) {
+                var celltable = document.getElementById(id)
+
+                const CellType = {
+                    Number: 0,
+                    HorizontalEdge: 1,
+                    VerticalEdge: 2,
+                    Empty: 3,
+                    Plus: 4,
+                };
+
+                function makeCell(prefix, cellType, idNumber, initColor) {
+                    let cell = document.createElement('td');
+                    cell.classList.add(initColor);
+                    var id = "";
+                    id += prefix;
+                    if (cellType == CellType.Number) {
+                        cell.innerText = "";
+                        cell.classList.add("cell");
+                        id += "c";
+                    } else if (cellType == CellType.HorizontalEdge) {
+                        cell.innerText = "──";
+                        cell.classList.add("edge");
+                        id += "e";
+                    } else if (cellType == CellType.VerticalEdge) {
+                        cell.innerText = "│";
+                        cell.classList.add("edge");
+                        id += "e";
+                    } else if (cellType == CellType.Plus) {
+                        // cell.innerText = "┼";
+                        cell.classList.add("plus");
+                    }
+
+                    id += String(idNumber).padStart(2, "0");
+                    id += initColor;
+                    cell.id = id;
+
+                    return cell;
+                }
+
+                function makeFiveEmpties(prefix) {
+                    return [makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white"),
+                        , makeCell(prefix, CellType.Empty, 0, "white")];
+                }
+
+                function makeFiveCells(prefix, ls, color) {
+                    return [makeCell(prefix, CellType.Number, ls.shift(), color),
+                        , makeCell(prefix, CellType.VerticalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Number, ls.shift(), color),
+                        , makeCell(prefix, CellType.VerticalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Number, ls.shift(), color)];
+                }
+
+                function makeFiveEdges(prefix, ls, color) {
+                    return [makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Plus, 0, color),
+                        , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color),
+                        , makeCell(prefix, CellType.Plus, 0, color),
+                        , makeCell(prefix, CellType.HorizontalEdge, ls.shift(), color)];
+                }
+
+                function makeRowEmptyCells(prefix, ls, color) {
+                    let row = document.createElement('tr');
+                    makeFiveEmpties(prefix).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, ls, color).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    return row;
+                }
+
+                function makeRowEmptyEdges(prefix, ls, color) {
+                    let row = document.createElement('tr');
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, ls, color).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    makeFiveEmpties(prefix,).forEach(el => row.appendChild(el));
+                    return row;
+                }
+
+                function makeRowFullCells(prefix, lsls, colorls) {
+                    let row = document.createElement('tr');
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveCells(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    return row;
+                }
+
+                function makeRowFullEdges(prefix, lsls, colorls) {
+                    let row = document.createElement('tr');
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    makeFiveEdges(prefix, lsls.shift(), colorls.shift()).forEach(el => row.appendChild(el));
+                    return row;
+                }
+
+                celltable.appendChild(makeRowEmptyCells(prefix, [9, 11, 8, 10, 7], "blue"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [20, 19, 18], "blue"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [30, 32, 29, 31, 28], "blue"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [41, 40, 39], "blue"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [51, 53, 50, 52, 49], "blue"))
+                celltable.appendChild(makeRowFullCells(prefix, [[11, 20, 32, 41, 53], [41, 53, 40, 52, 39], [52, 39, 31, 18, 10], [18, 10, 19, 11, 20]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullEdges(prefix, [[9, 30, 51], [51, 50, 49], [49, 28, 7], [7, 8, 9]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullCells(prefix, [[6, 17, 27, 38, 48], [38, 48, 37, 47, 36], [47, 36, 26, 15, 5], [15, 5, 16, 6, 17]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullEdges(prefix, [[4, 25, 46], [46, 45, 44], [44, 23, 2], [2, 3, 4]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowFullCells(prefix, [[1, 14, 22, 35, 43], [35, 43, 34, 42, 33], [42, 33, 21, 12, 0], [12, 0, 13, 1, 14]], ["orange", "grey", "red", "yellow"]));
+                celltable.appendChild(makeRowEmptyCells(prefix, [46, 43, 45, 42, 44], "green"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [35, 34, 33], "green"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [25, 22, 24, 21, 23], "green"))
+                celltable.appendChild(makeRowEmptyEdges(prefix, [14, 13, 12], "green"));
+                celltable.appendChild(makeRowEmptyCells(prefix, [4, 1, 3, 0, 2], "green"))
+            }
+
+            constructCelltable("l", "lcelltable");
+            constructCelltable("r", "rcelltable");
+
+            function dictFromPrefix(prefix) {
+                return (prefix == "l") ? leftbeenClicked : rightbeenClicked;
+            }
+
+            function printBeenClicked(prefix) {
+
+                var dict = dictFromPrefix(prefix);
+                console.log(dict);
+
+                let ret = 0n;
+                for (const k of Object.keys(dict)) {
+                    let val = dict[k];
+                    if (val == false) {
+                        continue;
+                    }
+                    ret |= (1n << BigInt(k));
+                }
+
+                document.getElementById(prefix + "beenClicked").innerText = "0x" + ret.toString(16);
+            }
+
+            leftbeenClicked = {}
+            rightbeenClicked = {}
+
+            function setCallbacks(prefix) {
+                for (var i = 0; i <= 53; i++) {
+                    for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
+                        var id = prefix + "e" + String(i).padStart(2, '0') + color;
+                        var edgeElement = document.getElementById(id);
+                        if (edgeElement == null) {
+                            continue;
+                        }
+                        var dict = dictFromPrefix(prefix);
+                        dict[i] = false;
+                        edgeElement.onclick = function (event) {
+                            var elementId = event.target.id;
+                            var numberInfix = elementId.slice(2).slice(0, 2);
+                            var number = Number(numberInfix);
+                            var elements = document.querySelectorAll('[id^="' + prefix + 'e' + numberInfix + '"]');
+                            console.log(number);
+                            var currTruth = dict[number];
+                            for (const el of elements) {
+                                if (!currTruth) {
+                                    el.style.color = window.getComputedStyle(el).backgroundColor;
+                                } else {
+                                    el.style.color = 'black';
+                                }
+                            }
+                            dict[number] = !currTruth;
+
+                            printBeenClicked(prefix);
+                        };
+                    }
+                }
+
+                for (const v of [29, 27, 37, 26, 16, 24]) {
+                    for (var color of ["red", "blue", "green", "grey", "yellow", "orange"]) {
+                        var id = prefix + "c" + String(v).padStart(2, '0') + color;
+                        var cellElement = document.getElementById(id);
+                        if (cellElement == null) {
+                            continue;
+                        }
+                        cellElement.onclick = function (event) {
+                            var element = event.target;
+                            var elementId = element.id;
+                            var numberInfix = elementId.slice(2).slice(0, 2);
+                            var number = 0 + numberInfix;
+                            var dict = dictFromPrefix(prefix);
+                            var currTruth = dict[number];
+                            if (!currTruth) {
+                                element.innerText = "x";
+                            } else {
+                                element.innerText = "";
+                            }
+                            dictFromPrefix(prefix)[number] = !currTruth;
+
+
+                            printBeenClicked(prefix);
+                        }
+                    }
+                }
+            }
+
+            setCallbacks("l");
+            setCallbacks("r");
+
+            function makeBitSet(ls) {
+                let ret = 0n;
+                for (let i of ls) {
+                    ret |= (1n << BigInt(i));
+                }
+                return ret;
+            }
+
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row text-center py-5">
+            <div class="col-12 text-center" id="left">
+                <h1> Bandaged Cube GUI </h1>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-12 col-lg-6 " id="left">
+                <div class="card">
+                    <div class="card-body">
+                        <table id="lcelltable"></table>
+                        <hr />
+                        <h2 id="lbeenClicked">0x0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 " id="right">
+                <div class="card">
+                    <div class="card-body">
+                        <table id="rcelltable"></table>
+                        <hr />
+                        <h2 id="rbeenClicked">0x0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <br />
+
+
+</body>
+
+</html>
