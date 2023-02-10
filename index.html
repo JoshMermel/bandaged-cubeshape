@@ -198,7 +198,6 @@
             function printBeenClicked(prefix) {
 
                 var dict = dictFromPrefix(prefix);
-                console.log(dict);
 
                 let ret = 0n;
                 for (const k of Object.keys(dict)) {
@@ -232,7 +231,6 @@
                             var numberInfix = elementId.slice(2).slice(0, 2);
                             var number = Number(numberInfix);
                             var elements = document.querySelectorAll('[id^="' + prefix + 'e' + numberInfix + '"]');
-                            console.log(number);
                             var currTruth = dict[number];
                             for (const el of elements) {
                                 if (!currTruth) {
@@ -348,7 +346,7 @@
             // which means I can use my favorite tool (
             function DoTurn(cube, turn) {
                 if (turn.length > 1) {
-                    if (turn[1] == '"') {
+                    if (turn[1] == "'") {
                         return DoTurn(DoTurn(DoTurn(cube, turn[0]), turn[0]), turn[0])
                     } else if (turn[1] == '2') {
                         return DoTurn(DoTurn(cube, turn[0]), turn[0])
@@ -396,8 +394,11 @@
                 return cube;
             }
 
-            // jmerm shit here
             function PathFromTo(cube1, cube2) {
+                if (cube1 == cube2) {
+                    return "Cubes are equal";
+                }
+
                 let i = 0;
                 let nodes = [{ size: 11, id: cube1, path: '' }];
                 let node_set = new Set(); // all nodes so far and their ints
@@ -422,7 +423,7 @@
                     i++;
                 }
 
-                return "not found";
+                return "No paths found";
             }
 
         }
