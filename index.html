@@ -395,36 +395,120 @@
                 return cube;
             }
 
-            function PathFromTo(cube1, cube2) {
-                if (cube1 == cube2) {
-                    return "Cubes are equal";
+
+            function CenterCoreBonds(cube) {
+              return [16n, 24n, 26n, 27n, 29n, 37n].filter(x => GetBit(cube, x) != 0).length;
+            }
+
+            function CenterEdgeBonds(cube) {
+              return [3n, 5n, 6n, 8n, 13n, 15n, 17n, 19n, 21n, 21n, 22n, 23n, 25n, 28n, 30n, 32n, 34n, 36n, 38n, 40n, 45n, 47n, 48n, 50n].filter(x => GetBit(cube, x) != 0).length;
+            }
+
+            function EdgeCornerBonds(cube) {
+              return [0n, 1n, 2n, 4n, 7n, 9n, 10n, 11n, 12n, 14n, 18n, 20n, 33n, 35n, 39n, 41n, 42n, 43n, 44n, 46n, 49n, 51n, 52n, 53n].filter(x => GetBit(cube, x) != 0).length;
+            }
+
+            function ExploreNeighbors(node) {
+              let neighbors = [];
+              for (let c of ["B", "L", "U", "R", "D", "F", "B'", "L'", "U'", "R'", "D'", "F'", "B2", "L2", "U2", "R2", "D2", "F2"]) {
+                if (CanDoTurn(node.id, c) && node.last_turn[0] != c[0]) {
+                  let turned = DoTurn(node.id, c);
+                  let path = node.path.slice();
+                  path.push(c)
+                  neighbors.push({id: turned, path: path, last_turn: c})
                 }
+              }
+              return neighbors;
+            }
 
-                let i = 0;
-                let nodes = [{ size: 11, id: cube1, path: '' }];
-                let node_set = new Set(); // all nodes so far and their ints
+            function opposite(turn) {
+              if (turn.length == 1) {
+                return turn + "'";
+              } else if (turn[1] == '2') {
+                return turn;
+              }
+              return turn[0];
+            }
 
-                node_set.add(cube1);
-                while (i < nodes.length) {
-                    let to_explore = nodes[i].id;
-                    let path = nodes[i].path
-                    for (let c of ["B", "L", "U", "R", "D", "F", "B'", "L'", "U'", "R'", "D'", "F'", "B2", "L2", "U2", "R2", "D2", "F2"]) {
-                        if (CanDoTurn(to_explore, c)) {
-                            let turned = DoTurn(to_explore, c);
+            function ExploreNeighborsBackward(node) {
+              let neighbors = [];
+              for (let c of ["B", "L", "U", "R", "D", "F", "B'", "L'", "U'", "R'", "D'", "F'", "B2", "L2", "U2", "R2", "D2", "F2"]) {
+                if (CanDoTurn(node.id, c) && node.last_turn[0] != c[0]) {
+                  let turned = DoTurn(node.id, c);
+                  let path = node.path.slice();
+                  path.unshift(opposite(c));
+                  neighbors.push({id: turned, path: path, last_turn: c })
+                }
+              }
+              return neighbors;
+            }
 
-                            if (turned == cube2) {
-                                return path + " " + c;
-                            }
-                            if (!node_set.has(turned)) {
-                                nodes.push({ size: 11, id: turned, path: path + " " + c });
-                                node_set.add(turned);
-                            }
-                        }
+            // TODO(jmerm): plumb in a feature to track the last turned face and skip double
+            // turns.
+            function Mitm(cube1, cube2) {
+              // Save on processing if the answer is obvious
+              if (CenterCoreBonds(cube1) != CenterCoreBonds(cube2)) {
+                return "Cubes have different numbers of Center-Core bonds";
+              }
+              if (CenterEdgeBonds(cube1) != CenterEdgeBonds(cube2)) {
+                return "Cubes have different numbers of Center-Edge bonds";
+              }
+              if (EdgeCornerBonds(cube1) != EdgeCornerBonds(cube2)) {
+                return "Cubes have different numbers of Edge-Corner bonds";
+              }
+              if (cube1 == cube2) {
+                return "Cubes are equal";
+              }
+
+              let fwd_q = [{id: cube1, path: [], last_turn: "-"}];
+              let fwd_seen = new Map();
+              fwd_seen.set(cube1, []);
+
+              let bwd_q = [{id: cube2, path: [], last_turn: "-"}];
+              let bwd_seen = new Map();
+              bwd_seen.set(cube2, []);
+
+              let target_depth = 1;
+
+              while (fwd_q.length > 0 || bwd_q.length > 0) {
+                // Explore forward
+                while (fwd_q.length > 0 && fwd_q[0].path.length < target_depth) {
+                  let next = fwd_q.shift();
+                  let neighbors = ExploreNeighbors(next);
+                  for (let neighbor of neighbors) {
+                    // New cell, note we've seen it and add it to the queue to explore more
+                    if (!fwd_seen.has(neighbor.id)) {
+                      fwd_seen.set(neighbor.id, neighbor.path);
+                      fwd_q.push(neighbor);
+                      if (bwd_seen.has(neighbor.id)) {
+                        return neighbor.path.join(" ") +  " " + bwd_seen.get(neighbor.id).join(" ");
+                      }
                     }
-                    i++;
+                  }
                 }
 
-                return "No paths found";
+                // Explore backward
+                while (bwd_q.length > 0 && bwd_q[0].path.length < target_depth) {
+                  let next = bwd_q.shift();
+                  let neighbors = ExploreNeighborsBackward(next);
+                  for (let neighbor of neighbors) {
+                    // New cell, note we've seen it and add it to the queue to explore more
+                    if (!bwd_seen.has(neighbor.id)) {
+                      bwd_seen.set(neighbor.id, neighbor.path);
+                      bwd_q.push(neighbor);
+                      if (fwd_seen.has(neighbor.id)) {
+                        return fwd_seen.get(neighbor.id).join(" ") + " " + neighbor.path.join(" ");
+                        return;
+                      }
+                    }
+                  }
+                }
+
+                console.log(target_depth);
+                target_depth++;
+              }
+
+              return "No paths found";
             }
 
         }
