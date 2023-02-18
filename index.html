@@ -193,7 +193,7 @@
                 var valLeft = valFromDict(leftbeenClicked);
                 var valRight = valFromDict(rightbeenClicked);
 
-                document.getElementById("result").innerText = PathFromTo(valLeft, valRight);
+                document.getElementById("result").innerText = Mitm(valLeft, valRight);
             }
 
             function printBeenClicked(prefix) {
@@ -443,8 +443,6 @@
               return neighbors;
             }
 
-            // TODO(jmerm): plumb in a feature to track the last turned face and skip double
-            // turns.
             function Mitm(cube1, cube2) {
               // Save on processing if the answer is obvious
               if (CenterCoreBonds(cube1) != CenterCoreBonds(cube2)) {
